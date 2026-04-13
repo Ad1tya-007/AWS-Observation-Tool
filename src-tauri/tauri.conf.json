@@ -12,9 +12,9 @@
   "app": {
     "windows": [
       {
-        "title": "tauri-app",
-        "width": 800,
-        "height": 600
+        "title": "observe",
+        "width": 1200,
+        "height": 1200
       }
     ],
     "security": {

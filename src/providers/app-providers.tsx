@@ -1,0 +1,11 @@
+import { ThemeProvider } from "next-themes";
+import { Toaster } from "@/components/ui/sonner";
+
+export function AppProviders({ children }: { children: React.ReactNode }) {
+  return (
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+      {children}
+      <Toaster richColors closeButton position="bottom-right" />
+    </ThemeProvider>
+  );
+}
