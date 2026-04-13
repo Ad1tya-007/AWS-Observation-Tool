@@ -14,6 +14,10 @@ export type AppUiContextValue = {
   activeRegion: string;
   setActiveRegion: (v: string) => void;
 
+  /** The currently selected Ollama model used for AI insights. */
+  selectedModel: string;
+  setSelectedModel: (v: string) => void;
+
   /**
    * Parameters from the most recent dashboard "Fetch / Refresh" call.
    * The detail page uses these to know which log groups and time window to
@@ -34,6 +38,7 @@ export function AppUiProvider({ children }: { children: ReactNode }) {
   const [demoOllamaDown, setDemoOllamaDown] = useState(false);
   const [activeProfile, setActiveProfile] = useState("default");
   const [activeRegion, setActiveRegion] = useState("us-east-1");
+  const [selectedModel, setSelectedModel] = useState("mistral:latest");
   const [lastFetchParams, setLastFetchParams] = useState<FetchParams | null>(null);
   const [lastFetchedRequests, setLastFetchedRequests] = useState<ObservedRequest[]>([]);
 
@@ -47,12 +52,14 @@ export function AppUiProvider({ children }: { children: ReactNode }) {
       setActiveProfile,
       activeRegion,
       setActiveRegion,
+      selectedModel,
+      setSelectedModel,
       lastFetchParams,
       setLastFetchParams,
       lastFetchedRequests,
       setLastFetchedRequests,
     }),
-    [demoSsoExpired, demoOllamaDown, activeProfile, activeRegion, lastFetchParams, lastFetchedRequests],
+    [demoSsoExpired, demoOllamaDown, activeProfile, activeRegion, selectedModel, lastFetchParams, lastFetchedRequests],
   );
 
   return <AppUiContext.Provider value={value}>{children}</AppUiContext.Provider>;
