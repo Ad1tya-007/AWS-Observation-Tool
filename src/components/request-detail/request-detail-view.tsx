@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from 'framer-motion';
-import { CopyIcon, ListTreeIcon, SparklesIcon } from 'lucide-react';
+import { CopyIcon, ListTreeIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { AiInsightPanel } from '@/components/observability/ai-insight-panel';
@@ -19,7 +19,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from '@/components/ui/resizable';
-import type { RequestDetail } from '@/lib/aws-api';
+import type { AiInsight, RequestDetail } from '@/lib/aws-api';
 
 type RequestDetailViewProps = {
   detail: RequestDetail;
@@ -27,8 +27,13 @@ type RequestDetailViewProps = {
   onSelectOpId: (id: string) => void;
   timelineFilterNote: string;
   onTimelineFilter: (shown: number, total: number) => void;
-  demoOllamaDown: boolean;
-  onDemoOllamaRetry: () => void;
+  /** Only set after Ollama returns; never backend heuristics. */
+  aiInsight: AiInsight | null;
+  selectedModel: string;
+  ollamaLoading: boolean;
+  ollamaError: string | null;
+  demoOllamaBlocked: boolean;
+  onInsightRetry: () => void;
 };
 
 export function RequestDetailView({
@@ -37,8 +42,12 @@ export function RequestDetailView({
   onSelectOpId,
   timelineFilterNote,
   onTimelineFilter,
-  demoOllamaDown,
-  onDemoOllamaRetry,
+  aiInsight,
+  selectedModel,
+  ollamaLoading,
+  ollamaError,
+  demoOllamaBlocked,
+  onInsightRetry,
 }: RequestDetailViewProps) {
   const reduceMotion = useReducedMotion();
 
@@ -92,20 +101,6 @@ export function RequestDetailView({
           >
             <CopyIcon className="size-3.5" aria-hidden />
             Copy ID
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            className="gap-2 bg-linear-to-r from-cyan-600 to-violet-600 text-white hover:from-cyan-500 hover:to-violet-500"
-            onClick={() =>
-              toast.message('Ollama integration coming soon', {
-                description: 'AI analysis will use your local Ollama model.',
-              })
-            }
-            aria-label="Run AI analysis for this request"
-          >
-            <SparklesIcon className="size-3.5" aria-hidden />
-            Run AI
           </Button>
         </div>
       </div>
@@ -173,9 +168,12 @@ export function RequestDetailView({
                   aria-label="AI insight for this trace"
                 >
                   <AiInsightPanel
-                    insight={detail.ai}
-                    ollamaOffline={demoOllamaDown}
-                    onRetry={onDemoOllamaRetry}
+                    insight={aiInsight}
+                    modelLabel={selectedModel}
+                    isOllamaLoading={ollamaLoading}
+                    ollamaError={ollamaError}
+                    demoOllamaBlocked={demoOllamaBlocked}
+                    onRetry={onInsightRetry}
                   />
                 </div>
               </ResizablePanel>

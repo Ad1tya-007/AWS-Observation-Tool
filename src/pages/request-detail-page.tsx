@@ -1,5 +1,4 @@
 import { useParams } from 'react-router-dom';
-import { toast } from 'sonner';
 import { RequestDetailError } from '@/components/request-detail/request-detail-error';
 import { RequestDetailLoading } from '@/components/request-detail/request-detail-loading';
 import { RequestDetailView } from '@/components/request-detail/request-detail-view';
@@ -10,7 +9,7 @@ export function RequestDetailPage() {
   const { requestId: rawId } = useParams<{ requestId: string }>();
   const requestId = rawId ? decodeURIComponent(rawId) : undefined;
 
-  const { demoOllamaDown, setDemoOllamaDown, lastFetchParams } = useAppUi();
+  const { demoOllamaDown, setDemoOllamaDown, lastFetchParams, selectedModel } = useAppUi();
 
   const {
     detail,
@@ -20,7 +19,11 @@ export function RequestDetailPage() {
     setSelectedOpId,
     timelineFilterNote,
     onTimelineFilter,
-  } = useRequestDetail(requestId, lastFetchParams);
+    ollamaInsight,
+    ollamaLoading,
+    ollamaError,
+    retryOllamaInsight,
+  } = useRequestDetail(requestId, lastFetchParams, selectedModel, demoOllamaDown);
 
   if (isLoading) {
     return <RequestDetailLoading />;
@@ -41,10 +44,17 @@ export function RequestDetailPage() {
       onSelectOpId={setSelectedOpId}
       timelineFilterNote={timelineFilterNote}
       onTimelineFilter={onTimelineFilter}
-      demoOllamaDown={demoOllamaDown}
-      onDemoOllamaRetry={() => {
-        setDemoOllamaDown(false);
-        toast.success('Demo: Ollama back online');
+      aiInsight={ollamaInsight}
+      selectedModel={selectedModel}
+      ollamaLoading={ollamaLoading}
+      ollamaError={ollamaError}
+      demoOllamaBlocked={demoOllamaDown}
+      onInsightRetry={() => {
+        if (demoOllamaDown) {
+          setDemoOllamaDown(false);
+        } else {
+          retryOllamaInsight();
+        }
       }}
     />
   );

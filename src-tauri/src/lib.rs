@@ -670,6 +670,12 @@ fn build_ai_insight(request_id: &str, timeline: &[TimelineOp], logs: &[LogLine])
     let errors: Vec<&TimelineOp> = timeline.iter().filter(|o| o.state == "error").collect();
     let warnings: Vec<&TimelineOp> = timeline.iter().filter(|o| o.state == "warning").collect();
     let error_logs: Vec<&LogLine> = logs.iter().filter(|l| l.level == "ERROR").collect();
+    // `logs` may omit structured ERROR level but still be error-like; prefer ERROR rows then any retained line.
+    let evidence_logs: Vec<&LogLine> = if !error_logs.is_empty() {
+        error_logs.into_iter().take(2).collect()
+    } else {
+        logs.iter().take(2).collect()
+    };
 
     if errors.is_empty() && warnings.is_empty() {
         return AiInsight {
@@ -701,7 +707,7 @@ fn build_ai_insight(request_id: &str, timeline: &[TimelineOp], logs: &[LogLine])
             .collect();
 
         // Include first two error log lines as supporting evidence
-        for log in error_logs.iter().take(2) {
+        for log in &evidence_logs {
             let snippet: String = log.text.chars().take(160).collect();
             root_cause.push(format!("Log evidence: `{}`", snippet.trim()));
         }
@@ -730,7 +736,7 @@ fn build_ai_insight(request_id: &str, timeline: &[TimelineOp], logs: &[LogLine])
                 errors.len(),
                 errors.len()
             ),
-            summary: error_logs
+            summary: evidence_logs
                 .first()
                 .map(|l| l.text.chars().take(200).collect::<String>())
                 .unwrap_or_else(|| format!("Error detected in `{}`.", errors[0].service)),
@@ -861,13 +867,18 @@ fn build_request_detail(id: String, events: Vec<RawEvent>) -> RequestDetail {
             kind: kind.to_string(),
         });
 
-        for (i, (_, msg)) in svc_evs.iter().enumerate() {
+        let mut log_i = 0usize;
+        for (_, msg) in svc_evs.iter() {
+            if !matches!(classify_message(msg), "error" | "warning") {
+                continue;
+            }
             logs.push(LogLine {
-                id: format!("log-{}-{}", service.replace('/', "-"), i),
+                id: format!("log-{}-{}", service.replace('/', "-"), log_i),
                 level: extract_log_level(msg).to_string(),
                 text: msg.clone(),
                 op_id: Some(op_id.clone()),
             });
+            log_i += 1;
         }
     }
 
