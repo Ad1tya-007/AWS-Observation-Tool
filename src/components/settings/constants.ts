@@ -1,0 +1,58 @@
+export const POPULAR_MODELS = [
+  {
+    name: 'mistral',
+    label: 'Mistral 7B',
+    description: 'Fast, versatile 7B model by Mistral AI',
+    tag: 'Popular',
+    size: '4.1GB',
+  },
+  {
+    name: 'llama3.2',
+    label: 'Llama 3.2 3B',
+    description: "Meta's lightweight 3B model",
+    tag: 'Compact',
+    size: '2.5GB',
+  },
+  {
+    name: 'llama3.1',
+    label: 'Llama 3.1 8B',
+    description: "Meta's capable 8B instruction model",
+    tag: 'Popular',
+    size: '8.1GB',
+  },
+  {
+    name: 'codellama',
+    label: 'Code Llama 7B',
+    description: 'Specialized for code generation',
+    tag: 'Code',
+    size: '4.3GB',
+  },
+  {
+    name: 'phi3',
+    label: 'Phi-3 Mini',
+    description: "Microsoft's efficient 3.8B model",
+    tag: 'Compact',
+    size: '2.7GB',
+  },
+  {
+    name: 'gemma2',
+    label: 'Gemma 2 2B',
+    description: "Google's lightweight open model",
+    tag: 'Compact',
+    size: '1.4GB',
+  },
+  {
+    name: 'qwen2.5-coder',
+    label: 'Qwen 2.5 Coder',
+    description: "Alibaba's code-focused model",
+    tag: 'Code',
+    size: '7.5GB',
+  },
+  {
+    name: 'deepseek-r1',
+    label: 'DeepSeek R1',
+    description: 'Strong reasoning and analysis',
+    tag: 'Reasoning',
+    size: '8.7GB',
+  },
+] as const;
